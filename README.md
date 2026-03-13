@@ -1,7 +1,12 @@
-CyberGuard AI — Cyberbullying Detection System
-AI-powered cyberbullying detection using Python, NLP (NLTK + TextBlob), Ollama (LLaMA 3), Flask, and React.
+# CyberGuard AI — Cyberbullying Detection System
 
-Architecture
+AI-powered cyberbullying detection using **Python**, **NLP (NLTK + TextBlob)**, **Ollama (LLaMA 3)**, **Flask**, and **React**.
+
+---
+
+## Architecture
+
+```
 cyberbullying-detection/
 ├── backend/
 │   ├── app.py           # Flask REST API
@@ -21,66 +26,73 @@ cyberbullying-detection/
         │   └── useAnalysis.js   # API state management
         └── services/
             └── api.js           # Flask API client
+```
 
-How It Works
+---
 
-NLP Preprocessing (NLTK)
+## How It Works
 
-Tokenization, lemmatization, stopword removal
-Keyword matching across 4 threat categories
-Sentiment analysis via TextBlob
+1. **NLP Preprocessing** (NLTK)
+   - Tokenization, lemmatization, stopword removal
+   - Keyword matching across 4 threat categories
+   - Sentiment analysis via TextBlob
 
+2. **AI Analysis** (Ollama / LLaMA 3)
+   - Enriched context sent to local LLM
+   - Returns: severity, confidence, categories, recommended action
+   - Falls back to rule-based scoring if Ollama is unavailable
 
-AI Analysis (Ollama / LLaMA 3)
+3. **Flask REST API**
+   - `POST /analyze` — single text
+   - `POST /batch-analyze` — up to 20 texts
+   - `GET /stats` — usage statistics
+   - `GET /health` — health check
 
-Enriched context sent to local LLM
-Returns: severity, confidence, categories, recommended action
-Falls back to rule-based scoring if Ollama is unavailable
+4. **React Frontend**
+   - Single + batch analysis modes
+   - Real-time confidence visualization
+   - Keyword highlighting and sentiment display
+   - Analysis history (last 50 results)
 
+---
 
-Flask REST API
+## Setup & Running
 
-POST /analyze — single text
-POST /batch-analyze — up to 20 texts
-GET /stats — usage statistics
-GET /health — health check
+### Prerequisites
+- Python 3.9+
+- Node.js 18+
+- [Ollama](https://ollama.ai) installed and running
 
-
-React Frontend
-
-Single + batch analysis modes
-Real-time confidence visualization
-Keyword highlighting and sentiment display
-Analysis history (last 50 results)
-
-
-
-
-Setup & Running
-Prerequisites
-
-Python 3.9+
-Node.js 18+
-Ollama installed and running
-
-1. Install & Run Ollama
-bash# Install Ollama from https://ollama.ai
+### 1. Install & Run Ollama
+```bash
+# Install Ollama from https://ollama.ai
 ollama pull llama3
 ollama serve   # runs on http://localhost:11434
-2. Backend
-bashcd backend
+```
+
+### 2. Backend
+```bash
+cd backend
 pip install -r requirements.txt
 python -m textblob.download_corpora    # download TextBlob data
 python app.py
 # → runs on http://localhost:5000
-3. Frontend
-bashcd frontend
+```
+
+### 3. Frontend
+```bash
+cd frontend
 npm install
 npm start
 # → opens http://localhost:3000
+```
 
-API Examples
-bash# Single text
+---
+
+## API Examples
+
+```bash
+# Single text
 curl -X POST http://localhost:5000/analyze \
   -H "Content-Type: application/json" \
   -d '{"text": "You are such an idiot, nobody likes you"}'
@@ -89,8 +101,11 @@ curl -X POST http://localhost:5000/analyze \
 curl -X POST http://localhost:5000/batch-analyze \
   -H "Content-Type: application/json" \
   -d '{"texts": ["Great work today!", "I will destroy you"]}'
-Response Structure
-json{
+```
+
+### Response Structure
+```json
+{
   "text": "...",
   "timestamp": "2024-01-01T00:00:00Z",
   "processing_time_ms": 342.5,
@@ -111,8 +126,28 @@ json{
     "recommended_action": "remove"
   }
 }
+```
 
-Detection Categories
-CategoryDescriptionthreatsPhysical or implied harm threatsinsultsDerogatory or demeaning languageharassmentStalking, spreading, exposingexclusionSocial isolation, rejectionhate_speechIdentity-based attackssexual_harassmentUnwanted sexual contentdoxxingPrivate info exposure
-Severity Levels
-LevelActionColornoneNo action🟢 GreenlowMonitor🟡 LimemediumWarn user🟠 AmberhighRemove content🔴 OrangecriticalEscalate immediately🚨 Red
+---
+
+## Detection Categories
+
+| Category | Description |
+|---|---|
+| `threats` | Physical or implied harm threats |
+| `insults` | Derogatory or demeaning language |
+| `harassment` | Stalking, spreading, exposing |
+| `exclusion` | Social isolation, rejection |
+| `hate_speech` | Identity-based attacks |
+| `sexual_harassment` | Unwanted sexual content |
+| `doxxing` | Private info exposure |
+
+## Severity Levels
+
+| Level | Action | Color |
+|---|---|---|
+| `none` | No action | 🟢 Green |
+| `low` | Monitor | 🟡 Lime |
+| `medium` | Warn user | 🟠 Amber |
+| `high` | Remove content | 🔴 Orange |
+| `critical` | Escalate immediately | 🚨 Red |
